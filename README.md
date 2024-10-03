@@ -10,7 +10,7 @@ The idea is to connect the Homematic Thermostats to the Boiler for the following
 
 Basic circuit schematic is taken from the [Archived EMSESP8266 project](https://github.com/dimitri-rebrikov/EMS-ESP/blob/1.9.4/doc/schematics/Schematic_EMS-ESP.png).
 
-The parts I used for the circuit are in the [BOM](./BOM.html).
+The parts I used for the circuit are in the [BOM](https://html-preview.github.io/?url=https://github.com/dimitri-rebrikov/EMS-Homematic-Integration/blob/main/BOM.xhtml).
 
 The overview of the circuit assembly: ![Assembly](./AssemblyCircuit.svg)
 
