@@ -9,6 +9,8 @@ The idea is to connect the Homematic Thermostats to the Boiler for the following
 # Implementation (Under Construction)
 
 ## Hardware
+There are ready to use hardware modules selled by https://bbqkees-electronics.nl/ but I wanted to build my own one to have a better understanding what ist happening there.
+
 The basic circuit schematic is taken from the [Archived EMSESP8266 project](https://github.com/dimitri-rebrikov/EMS-ESP/blob/1.9.4/doc/schematics/Schematic_EMS-ESP.png).
 
 The parts I used for the circuit are in the [BOM](https://html-preview.github.io/?url=https://github.com/dimitri-rebrikov/EMS-Homematic-Integration/blob/main/BOM.xhtml) file.
