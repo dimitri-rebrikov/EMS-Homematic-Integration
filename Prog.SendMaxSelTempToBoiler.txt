@@ -1,13 +1,13 @@
 !WriteLine("start");
 string emsespip="192.168.74.95";
-string bt="<place_bearer_token_from_ems-esp_here>";
+string bt=""<place_bearer_token_from_ems-esp_here>"";
 string authorization="-H 'Authorization: Bearer " # bt # "'";
 string contenttype="-H 'Content-Type: application/json; charset=UTF-8'";
 string stderr;
 string stdout;
 string heating;
 
-string sysvName = "Sysv.EMSHM.MaxDesiredTemp";
+string sysvName = "SysVar.ThermostatMaxSelTemp";
 var sysv = dom.GetObject(sysvName);
 var seltemp = sysv.Value();
 var data = "-d '{\"cmd\":\"hc1.seltemp\",\"data\":" # seltemp # "}'";

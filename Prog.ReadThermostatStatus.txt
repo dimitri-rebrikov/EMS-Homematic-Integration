@@ -1,0 +1,51 @@
+string funcName = "ThermostatList";
+var func = dom.GetObject(funcName);
+
+real maxTemp = 0.0;
+boolean boostMode = false;
+
+string chId; 
+foreach(chId, func.EnumUsedIDs()) {
+  var ch = dom.GetObject(chId);
+  !WriteLine(ch.Name() # ": " # ch.ID() # ": " # ch.Device());
+  var dvc = dom.GetObject(ch.Device());
+  !WriteLine("=>" # dvc.Name() # ": " # dvc.ID() # ": '" # dvc.HssType() # "'");
+  string dpId;
+  foreach(dpId, ch.DPs()) {
+    var dp = dom.GetObject(dpId);
+    !WriteLine("->'" # dp.Name() # "' : " # dp.Value());
+	if(((dvc.HssType() == "HM-CC-RT-DN") 
+		&& (dp.Name().EndsWith(".SET_TEMPERATURE")))
+	|| ((dvc.HssType() == "HmIP-eTRV-2") 
+		&& (dp.Name().EndsWith(".SET_POINT_TEMPERATURE")))
+	) {
+		var curTemp = dp.Value();
+		WriteLine(dvc.Name() # " (" # dvc.HssType() # "): " # dp.Name() # ": " # curTemp);
+		if( curTemp > maxTemp ) {
+			WriteLine("update maxTemp to: " # curTemp);
+			maxTemp = curTemp;
+		}
+	}
+	if(((dvc.HssType() == "HM-CC-RT-DN") 
+		&& (dp.Name().EndsWith(".BOOST_STATE"))
+		&& (dp.Value() > 0))
+	|| ((dvc.HssType() == "HmIP-eTRV-2") 
+		&& (dp.Name().EndsWith(".BOOST_MODE"))
+		&& (dp.Value() != false))
+	) {
+	    WriteLine(dvc.Name() # " (" # dvc.HssType() # "): " # dp.Name() # ": " # dp.Value());
+		boostMode = true;
+		WriteLine("Boost mode aktive");
+	}
+  }
+}
+
+string sysvName = "SysVar.ThermostatMaxSelTemp";
+var sysv = dom.GetObject(sysvName);
+sysv.State(maxTemp);
+WriteLine("New value for: " # sysvName # "=" # sysv.Value());
+
+sysvName = "SysVar.ThermostatBoostMode";
+var sysv = dom.GetObject(sysvName);
+sysv.State(boostMode);
+WriteLine("New value for: " # sysvName # "=" # sysv.Value());
