@@ -89,28 +89,58 @@ The necessity of this use case is based on the fact that the modern power saving
 
 The use cases is implemented by the following workflow:
 - iterate over all thermostats every 10 sec
-- detect the max desired room temperature selected on the thermostats 
-- store the max desired room temperature in the system variable
-- send the max desired room temperature to the boiler every 10 sec
+  - detect the max desired room temperature selected on the thermostats 
+  - store the max desired room temperature in a system variable
+- send the stored max desired room temperature to the boiler every 10 sec
 
 The CCU elements used in the use case:
 - the CCU function `ThermostatList` stores the list of the thermostats to iterate
-- the CCU script [Prog.ReadThermostatStatus.txt](./Prog.ReadThermostatStatus.txt) implement the detection of the desired temperature and storing ig
+- the CCU script [Prog.ReadThermostatStatus.txt](./Prog.ReadThermostatStatus.txt) implement the detection of the desired temperature and storing it
 - the CCU system variable `SysVar.ThermostatMaxSelTemp` preserves the current desired temperature
 - the CCU script [Prog.SendMaxSelTempToBoiler.txt](./Prog.SendMaxSelTempToBoiler.txt) sends the desired temperature to the boiler
 
 ## Use Case "Send boost to boiler"
-TODO
+This is a convenience feature implemented both in the Homematic thermostats and in the Bosch boiler controller.
+In the thermostats it result in the full opening of the valve for a configured amount of time. In the boiler controller it result to setting the boiler to the configured "boost" temperature (f.e. 30 degree) for a configured amount of time. But without synchronization between thermostats and boiler this feature pretty useless. So opening the valve on the thermostat will not result the boiler switching into the hight power mode. The boiler will still try to keep the configured temperature by controlling the return water temperature and cancelling heating if the water becomes to hot. And vice versa: switching the boiler into the boost mode will use nothing if the valve of the thermostat is close as it configure to keep the normal room temperature. 
 
-## Use Case "Send boilers summer mode to thermostats"
-TODO
+The use case implements the following workflow:
+- iterate over all thermostats every 10 sec
+  - check if any of the thermostat is put into the boost mode 
+  - store the result of the flow in a system variable
+- depending on the stored result enable/disable the boiler's boost mode every 10 sec
 
-## Configuring the CCU use case element
-TODO describe how to create scripts, functions and system variables.
+The CCU elements used in the use case:
+- the CCU function `ThermostatList` stores the list of the thermostats to iterate
+- the CCU script [Prog.ReadThermostatStatus.txt](./Prog.ReadThermostatStatus.txt) implement the check for the thermostats boost mode and storing it
+- the CCU system variable `SysVar.ThermostatBoostMode` preserves the last result of the thermostats boost mode check
+- the CCU script [Prog.SendBoostModeToBoiler.txt](./Prog.SendBoostModeToBoiler.txt) enables/disables the boost mode of the boiler
+
+## Use Case "Send boilers summer mode to thermostats" (not yet completely implemented)
+The boiler is equipped with an outdoor temperature sensor. Based on a configured outdoor temperature threshold the boiler enables/disables the heating function. If the heating function of the boiler is disabled there is no reason for the thermostat to provide any kind of reaction to the temperature. They can be put into the "valve is always on" mode preventing battery drain from the valve motor actions but also preventing the valves from corrosion.
+
+The use case implements the following workflow:
+- check if the boiler is in the summer mode every 10 sec
+- stores the result of the check into a system variable
+- iterates over all thermostats every 10 sec and set/unset the "valve is always on" mode depending on the result of the summer mode check
+
+The CCU elements used in the use case:
+- the CCU script [Prog.ReadBoilerHeatingMode.txt](./Prog.ReadBoilerHeatingMode.txt) implement the check for the boiler sommer mode and the storing of it
+- the CCU system variable `SysVar.BoilerHeatingMode` preserves the last result of the boiler summer mode check
+- the CCU function `ThermostatList` stores the list of the thermostats to iterate
+- the CCU script (TODO:implement) iterates over thermostats and enables/disables the "valve is always on" mode
+
+## Configuring the CCU elements
+### Overview of the scripts
+![Scripts](./Prog.Overview.png)
+### Configuring 10 sec interval for the scripts
+![10 sec interval](Prog.Configuring10SecInterval.png)
+### Example of the thermostat list
+![ThermostatList](./ThermostatList.png)
+### Overview of the system variables
+![System Variables](./SysVar.Overview.png)
 
 # CUxD
 CUxD is a software extension for the CCU and shall be installed for this project as it provides the cURL tool which is used by the scripts to access the boiler values over the EMS-ESP REST API. See the [Home Page](https://homematic-forum.de/forum/viewtopic.php?t=15298) for documentation and installation instruction.
-
 
 # External Sources
  
