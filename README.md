@@ -4,7 +4,7 @@ The information provided by the project can be used to understand/implement othe
 
 # Use Cases
 Using the communication I implemented the following use cases:
-- put thermostats into a passive mode if the boiler is in the summer mode (i.e. no heating function) which helps to save the thermostat's battery
+- put thermostats into a passive mode if the boiler heating is off
 - switch the boiler into the boost mode if one of the thermostats is switched into the boost mode
 - adjust the boiler's heating temperature to the temperature selected on the thermostats
 
@@ -115,17 +115,17 @@ The CCU elements used in the use case:
 - the CCU system variable `SysVar.ThermostatBoostMode` preserves the last result of the thermostats boost mode check
 - the CCU script [Prog.SendBoostModeToBoiler.txt](./Prog.SendBoostModeToBoiler.txt) enables/disables the boost mode of the boiler
 
-## Use Case "Send boilers summer mode to thermostats" (not yet completely implemented)
+## Use Case "Send boilers heating mode to thermostats" (not yet completely implemented)
 The boiler is equipped with an outdoor temperature sensor. Based on a configured outdoor temperature threshold the boiler enables/disables the heating function. If the heating function of the boiler is disabled there is no reason for the thermostat to provide any kind of reaction to the temperature. They can be put into the "valve is always on" mode preventing battery drain from the valve motor actions but also preventing the valves from corrosion.
 
 The use case implements the following workflow:
-- check if the boiler is in the summer mode every 10 sec
+- check if the boiler heating mode every 10 sec
 - stores the result of the check into a system variable
-- iterates over all thermostats every 10 sec and set/unset the "valve is always on" mode depending on the result of the summer mode check
+- iterates over all thermostats every 10 sec and set/unset the "valve is always on" mode depending on the result of the heating mode check
 
 The CCU elements used in the use case:
-- the CCU script [Prog.ReadBoilerHeatingMode.txt](./Prog.ReadBoilerHeatingMode.txt) implement the check for the boiler sommer mode and the storing of it
-- the CCU system variable `SysVar.BoilerHeatingMode` preserves the last result of the boiler summer mode check
+- the CCU script [Prog.ReadBoilerHeatingMode.txt](./Prog.ReadBoilerHeatingMode.txt) implement the check for the boiler heating mode and the storing of it
+- the CCU system variable `SysVar.BoilerHeatingMode` preserves the last result of the boiler heating mode check
 - the CCU function `ThermostatList` stores the list of the thermostats to iterate
 - the CCU script (TODO:implement) iterates over thermostats and enables/disables the "valve is always on" mode
 
