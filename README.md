@@ -14,7 +14,7 @@ The CCU2 communicates with the thermostats over the proprietary Homematic 866 mH
 The CCU2 is connected to the home network over the Ethernet cable.
 The EMS-ESP module is connected to the home network over the WiFi.
 The EMS-ESP module communicates with the boiler and its controller using the EMS Bus.
-The CCU2 communicates with the EMS-ESP over the home network using the ESM-ESP's REST API.
+The scripts on the CCU2 communicate with the EMS-ESP over the home network using the EMS-ESP's REST API.
 The use cases are implemented on the CCU2 using the Homematic scripting language. 
 
 # EMS Bus 
@@ -22,7 +22,7 @@ The EMS Bus is a proprietary hardware protocol for the communication between Bos
 It is closed source but it was reverse engineered by the community. 
 
 # EMS-ESP module
-The EMS-ESP module implements the access to the EMS Bus from the network.
+The EMS-ESP module https://github.com/emsesp/EMS-ESP32 implements the access to the EMS Bus from the network.
 It has a web based user interface to view/change the boiler setting.
 But there is also a REST API to access to the settings by any other applications connected to the same network.
 
@@ -32,18 +32,19 @@ There are ready to use hardware modules sold by https://bbqkees-electronics.nl/ 
 The basic circuit schematic is taken from the [Archived EMSESP8266 project](https://github.com/dimitri-rebrikov/EMS-ESP/blob/1.9.4/doc/schematics/Schematic_EMS-ESP.png).
 
 I adapted the circuit to be supplied by the power from the VCC+ pin of the EMS power jack of the boiler.
-And I used ESP32 instead of ESP8266 as the current EMS-ESP software does not support it anymore.
+And I used ESP32 instead of ESP8266 as the current EMS-ESP version does not support the ESP8266 anymore.
 Here is the circuit diagram with the adaptions:
 ![Adapted Circuit](./CircuitDiagram.svg)
 
-I also used slightly different hardware parts, see the [BOM](https://html-preview.github.io/?url=https://github.com/dimitri-rebrikov/EMS-Homematic-Integration/blob/main/BOM.xhtml) file.
+I also used slightly different hardware parts, see the [Bill of Material](https://html-preview.github.io/?url=https://github.com/dimitri-rebrikov/EMS-Homematic-Integration/blob/main/BOM.xhtml).
 
 During the implementation I split the circuit into 3 hardware modules: 
 
 ![Modules](./CircuitModules.svg)
 
-I implemented each module on a separate board of the same size and then stacked them together using the brass distance sleeves respective thick soldering wires. 
-Then I put the assembly into a standard electronic distribution box:
+Each module is separate circuit board of nearly the same size.
+They assembled together as a stack using the brass distance sleeves respective thick soldering wires. 
+The assembly is put into a standard electronic distribution box:
 
 <p float="left">
   <img src="./PictStackedBoards1.jpg" width="32%" />
@@ -52,39 +53,51 @@ Then I put the assembly into a standard electronic distribution box:
 </p>
 
 ## Software
-The EMS-ESP project provides ready-to-use software for the EMS-ESP module.
-To user the software for the project:
+The [EMS-ESP project](https://github.com/emsesp/EMS-ESP32) provides ready-to-use software for the EMS-ESP module.
+To use the software:
 1. install the software using the online install tool on https://install.emsesp.org/. The online installation will work only on the browsers supporting the serial interface (Chrome - yes, Firefox - not)
 
 2. integrate the module into your WiFi network using explanations from https://emsesp.org/Configuring/
 
-3. connect the module to the boiler  over the 3.5mm service jack.
+3. connect the module to the boiler over the 3.5mm service jack
 
-4. reach the user interface of the module over browser and test if the module "sees" the boiler
+4. access the user interface of the module over browser and test if the module can communicate with the boiler
 
-5. copy the user access token from the security settings to be used later in the scripts to change for the write operations
+5. copy the user access token from the security settings to be used later in the scripts for the write operations
 
 # Thermostats
-I have 2 types of thermostats:
+I have 2 types of the Homematic thermostats:
 - Homematic HM-CC-RT-DN
 - Homematic IP HMIP-eTRV/2
 
-In order to work with the project the thermostats needs to be paired with the CCU.
+In order to work with the project the thermostats needs to be paired with the CCU. For the paring and other details just google for the "manual" and the type name of the corresponding thermostat.
 After the paring the status values of the thermostat can be viewed/changed over the CCU either over the user interface or by a script.
 
 # Use Cases implementation
-The user case logic is implemented as several scripts.
+The user cases logic is implemented as several scripts.
 All scripts have following in common: They
-- run on CCU
+- run on the CCU
 - implemented in Homematic script language
-- follow the separation of concern they don't speak both sides - thermostats and boiler but only one of them. I.e. the use case involving both sides is implemented using 2 scripts.
-- use the CCU system variables to store the detected state
-- use the CCU system variables to read the state detected by another part of the use case
+- follow the separation of concern rule: They don't speak to the both sides - thermostats and boiler but only the one of them. I.e. if the use case involves both sides it is implemented using 2 scripts.
+- use the CCU system variables to store the detected state so it can be used by another script 
+- use the CCU system variables to read the state detected by another script
 - use CCU object model to access the thermostat values
 - use cURL (provided by CUxD) to access the boiler values
 
 ## Use Case "Send selected temperature to boiler"
-TODO
+The necessity of this use case is based on the fact that the modern power saving boiler adjusts their heating mode based on the desired room temperature. So it might be challenging to heat up your bath room up to 24 degree Celsius even with the thermostat set to this value if the boiler is internally set to 20 degree desired room temperature. Because the boiler adjusts the inflow water temperature for the heating pipes based on the desired room temperature. And boiler might just to stop heating the heating pipe water if the backflow water temperature reaches a value it "thinks" is enough to heat the room to 20 degree. So it is important to let the boiler "know" what is the actual desired room temperature.
+
+The use cases is implemented by the following workflow:
+- iterate over all thermostats every 10 sec
+- detect the max desired room temperature selected on the thermostats 
+- store the max desired room temperature in the system variable
+- send the max desired room temperature to the boiler every 10 sec
+
+The CCU elements used in the use case:
+- the CCU function `ThermostatList` stores the list of the thermostats to iterate
+- the CCU script [Prog.ReadThermostatStatus.txt](./Prog.ReadThermostatStatus.txt) implement the detection of the desired temperature and storing ig
+- the CCU system variable `SysVar.ThermostatMaxSelTemp` preserves the current desired temperature
+- the CCU script [Prog.SendMaxSelTempToBoiler.txt](./Prog.SendMaxSelTempToBoiler.txt) sends the desired temperature to the boiler
 
 ## Use Case "Send boost to boiler"
 TODO
@@ -92,8 +105,11 @@ TODO
 ## Use Case "Send boilers summer mode to thermostats"
 TODO
 
+## Configuring the CCU use case element
+TODO describe how to create scripts, functions and system variables.
+
 # CUxD
-TODO
+CUxD is a software extension for the CCU and shall be installed for this project as it provides the cURL tool which is used by the scripts to access the boiler values over the EMS-ESP REST API. See the [Home Page](https://homematic-forum.de/forum/viewtopic.php?t=15298) for documentation and installation instruction.
 
 
 # External Sources
