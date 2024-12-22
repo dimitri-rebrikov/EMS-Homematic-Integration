@@ -124,8 +124,8 @@ The use case implements the following workflow:
 - iterates over all thermostats every 10 sec and set/unset the "valve is always on" mode depending on the result of the heating mode check
 
 The CCU elements used in the use case:
-- the CCU script [Prog.ReadBoilerHeatingMode.txt](./Prog.ReadBoilerHeatingMode.txt) implement the check for the boiler heating mode and the storing of it
-- the CCU system variable `SysVar.BoilerHeatingMode` preserves the last result of the boiler heating mode check
+- the CCU script [Prog.ReadBoilerHeatingDisabled.txt](./Prog.ReadBoilerHeatingDisabled.txt) implement the check if the boiler heating is disabled and store it into a system variable
+- the CCU system variable `SysVar.BoilerHeatingDisabled` preserves the last result of the boiler heating disabled check
 - the CCU function `ThermostatList` stores the list of the thermostats to iterate
 - the CCU script (TODO:implement) iterates over thermostats and enables/disables the "valve is always on" mode
 
