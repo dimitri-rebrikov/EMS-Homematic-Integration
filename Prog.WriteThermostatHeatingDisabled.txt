@@ -1,0 +1,61 @@
+! under development
+string funcName = "ThermostatList";
+var func = dom.GetObject(funcName);
+
+string sysvName = "SysVar.BoilerHeatingDisabled";
+var sysv = dom.GetObject(sysvName);
+WriteLine("Value for: " # sysvName # "=" # sysv.Value());
+
+boolean heatingDisabled = sysv.Value();
+
+string chId; 
+foreach(chId, func.EnumUsedIDs()) {
+  var ch = dom.GetObject(chId);
+  !WriteLine(ch.Name() # ": " # ch.ID() # ": " # ch.Device());
+  var dvc = dom.GetObject(ch.Device());
+  !WriteLine("=>" # dvc.Name() # ": " # dvc.ID() # ": '" # dvc.HssType() # "'");
+  string dpId;
+  var dpTemp;
+  var dpModeAuto;
+  var dpModeManu;
+  var dpModeAutoValue;
+  var dpModeManuValue;  
+  foreach(dpId, ch.DPs()) {
+    var dp = dom.GetObject(dpId);
+    !WriteLine("->'" # dp.Name() # "' : " # dp.Value());
+	if(dvc.HssType() == "HM-CC-RT-DN") {
+		if(dp.Name().EndsWith(".SET_TEMPERATURE")) {
+			dpTemp = dp;
+		} elseif (dp.Name().EndsWith(".AUTO_MODE")) {
+			dpModeAuto = dp;
+			dpModeAutoValue = 1;
+		} elseif (dp.Name().EndsWith(".MANU_MODE")) {
+			dpModeManu = dp;
+			dpModeManuValue = 1;
+		}
+	} elseif(dvc.HssType() == "HmIP-eTRV-2") {
+		if(dp.Name().EndsWith(".SET_POINT_TEMPERATURE")) {
+			dpTemp = dp;
+		} elseif (dp.Name().EndsWith(".CONTROL_MODE")) {
+			dpModeAuto = dp;
+			dpModeManu = dp;
+			dpModeAutoValue = 0;
+			dpModeManuValue = 1;
+		}
+	}
+  }
+  if(heatingDisabled){
+	WriteLine(dvc.Name() # " activate summer mode");
+	WriteLine("Set " # dpModeManu.Name() # " to " # dpModeManuValue);
+    dpModeManu.State(dpModeManuValue);
+	dpTemp.State(30.5);
+	WriteLine(dvc.Name() # " activated");
+  } elseif(dpTemp.Value() >= 25) {
+    WriteLine(dvc.Name() # " activate winter mode");
+    WriteLine("Set " # dpModeAuto.Name() # " to " # dpModeAutoValue);
+    dpModeAuto.State(dpModeAutoValue);
+    WriteLine(dvc.Name() # " activated");
+  } else {
+	WriteLine("change nothing");
+  }
+}
