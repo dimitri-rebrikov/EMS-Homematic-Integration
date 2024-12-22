@@ -1,0 +1,24 @@
+!set the ip address sysvar using the "Test script" CCU window and the command:
+!dom.GetObject("SysVar.EmsEspIpAddress").State("<ip-adress>")
+string emsespip=dom.GetObject("SysVar.EmsEspIpAddress").Value();
+string stderr;
+string stdout;
+boolean heatingDisabled;
+string curlcommand="curl -fsS http://" # emsespip # "/api/thermostat/summermode/value";
+system.Exec(curlcommand, &stdout, &stderr);
+!WriteLine("stdout: " # stdout);
+!WriteLine("stderr: " # stderr);
+if(stdout == "summer") {
+  heatingDisabled=true;
+} elseif(stdout == "winter") {
+  heatingDisabled=false;
+} else {
+  WriteLine("curl command: " + curlcommand);
+  WriteLine("unknown value/error: " # stdout # " /  " # stderr);
+  heatingDisabled=false; 
+}
+string sysvName = "SysVar.BoilerHeatingDisabled";
+var sysv = dom.GetObject(sysvName);
+sysv.State(heatingDisabled);
+
+WriteLine("New value for: " # sysvName # "=" # sysv.Value());
