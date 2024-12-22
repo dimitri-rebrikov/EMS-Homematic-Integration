@@ -1,6 +1,8 @@
 !WriteLine("start");
-string emsespip="192.168.74.95";
-string bt=""<place_bearer_token_from_ems-esp_here>"";
+!set the corresponding SysVar.* variables using the "Test script" CCU window and the command:
+!dom.GetObject("SysVar.<Name>").State("<Value>")
+string emsespip=dom.GetObject("SysVar.EmsEspIpAddress").Value();
+string bt=dom.GetObject("SysVar.EmsEspBearerToken").Value();
 string authorization="-H 'Authorization: Bearer " # bt # "'";
 string contenttype="-H 'Content-Type: application/json; charset=UTF-8'";
 string stderr;
