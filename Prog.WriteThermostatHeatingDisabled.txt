@@ -1,4 +1,3 @@
-! under development
 string funcName = "ThermostatList";
 var func = dom.GetObject(funcName);
 

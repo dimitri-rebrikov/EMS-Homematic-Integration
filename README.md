@@ -98,6 +98,7 @@ The CCU elements used in the use case:
 - the CCU script [Prog.ReadThermostatStatus.txt](./Prog.ReadThermostatStatus.txt) implement the detection of the desired temperature and storing it
 - the CCU system variable `SysVar.ThermostatMaxSelTemp` preserves the current desired temperature
 - the CCU script [Prog.SendMaxSelTempToBoiler.txt](./Prog.SendMaxSelTempToBoiler.txt) sends the desired temperature to the boiler
+- the CCU systems variables `SysVar.EmsEspIpAddress` and `SysVar.EmsEspBearerToken` contain the connection parameters for the EMS-ESP REST API 
 
 ## Use Case "Send boost to boiler"
 This is a convenience feature implemented both in the Homematic thermostats and in the Bosch boiler controller.
@@ -114,20 +115,22 @@ The CCU elements used in the use case:
 - the CCU script [Prog.ReadThermostatStatus.txt](./Prog.ReadThermostatStatus.txt) implement the check for the thermostats boost mode and storing it
 - the CCU system variable `SysVar.ThermostatBoostMode` preserves the last result of the thermostats boost mode check
 - the CCU script [Prog.SendBoostModeToBoiler.txt](./Prog.SendBoostModeToBoiler.txt) enables/disables the boost mode of the boiler
+- the CCU systems variables `SysVar.EmsEspIpAddress` and `SysVar.EmsEspBearerToken` contain the connection parameters for the EMS-ESP REST API 
 
-## Use Case "Send boilers heating mode to thermostats" (not yet completely implemented)
-The boiler is equipped with an outdoor temperature sensor. Based on a configured outdoor temperature threshold the boiler enables/disables the heating function. If the heating function of the boiler is disabled there is no reason for the thermostat to provide any kind of reaction to the temperature. They can be put into the "valve is always on" mode preventing battery drain from the valve motor actions but also preventing the valves from corrosion.
+## Use Case "Send boilers heating disabled status to the thermostats"
+The boiler is equipped with an outdoor temperature sensor. Based on the configured outdoor temperature threshold the boiler enables/disables the heating function. If the heating function of the boiler is disabled there is no reason for the thermostats to provide any kind of reaction to the temperature. They can be put into the "valve is always on" mode preventing battery drain from the valve motor actions but also preventing the valves from corrosion.
 
 The use case implements the following workflow:
-- check if the boiler heating mode every 10 sec
+- check if the boiler heating is disabled every 10 sec
 - stores the result of the check into a system variable
 - iterates over all thermostats every 10 sec and set/unset the "valve is always on" mode depending on the result of the heating mode check
 
 The CCU elements used in the use case:
-- the CCU script [Prog.ReadBoilerHeatingDisabled.txt](./Prog.ReadBoilerHeatingDisabled.txt) implement the check if the boiler heating is disabled and store it into a system variable
-- the CCU system variable `SysVar.BoilerHeatingDisabled` preserves the last result of the boiler heating disabled check
-- the CCU function `ThermostatList` stores the list of the thermostats to iterate
-- the CCU script (TODO:implement) iterates over thermostats and enables/disables the "valve is always on" mode
+- the CCU script [Prog.ReadBoilerHeatingDisabled.txt](./Prog.ReadBoilerHeatingDisabled.txt) implements the check if the boiler heating is disabled and stores the result into a system variable
+- the CCU systems variables `SysVar.EmsEspIpAddress` contains the connection parameter for the EMS-ESP REST API 
+- the CCU system variable `SysVar.BoilerHeatingDisabled` contains the last result of the boiler heating disabled check
+- the CCU function `ThermostatList` stores the list of the thermostats to iterate over
+- the CCU script [Prog.WriteThermostatHeatingDisabled.txt](./Prog.WriteThermostatHeatingDisabled.txt) iterates over thermostats and enables/disables the "valve is always on" mode
 
 ## Configuring the CCU elements
 ### Overview of the scripts
@@ -143,7 +146,6 @@ The CCU elements used in the use case:
 CUxD is a software extension for the CCU and shall be installed for this project as it provides the cURL tool which is used by the scripts to access the boiler values over the EMS-ESP REST API. See the [Home Page](https://homematic-forum.de/forum/viewtopic.php?t=15298) for documentation and installation instruction.
 
 # External Sources
- 
 - https://github.com/emsesp/EMS-ESP/blob/541c0c2e10b30098e26656a97a1686c8d44bc3bd/README.md
 - https://github.com/bbqkees/Nefit-Buderus-EMS-bus-Arduino-Domoticz/blob/9a028393e1c5bedbde9ec8262f618dd6cc0af2ec/Documentation/README.md
 - https://web.archive.org/web/20240222073926/https://www.kabza.de/MyHome/EMSBus/EMSbus.php
