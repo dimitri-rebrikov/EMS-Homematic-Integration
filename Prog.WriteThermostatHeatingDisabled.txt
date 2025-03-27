@@ -43,18 +43,18 @@ foreach(chId, func.EnumUsedIDs()) {
 		}
 	}
   }
-  if(heatingDisabled){
+  if(heatingDisabled && (dpTemp.Value() < 30.5)){
 	WriteLine(dvc.Name() # " activate summer mode");
 	WriteLine("Set " # dpModeManu.Name() # " to " # dpModeManuValue);
     dpModeManu.State(dpModeManuValue);
 	dpTemp.State(30.5);
-	WriteLine(dvc.Name() # " activated");
-  } elseif(dpTemp.Value() >= 25) {
+	WriteLine(dvc.Name() # " summer mode activated");
+  } elseif((!heatingDisabled)  && (dpTemp.Value() >= 25)) {
     WriteLine(dvc.Name() # " activate winter mode");
     WriteLine("Set " # dpModeAuto.Name() # " to " # dpModeAutoValue);
     dpModeAuto.State(dpModeAutoValue);
-    WriteLine(dvc.Name() # " activated");
+    WriteLine(dvc.Name() # " winter mode activated");
   } else {
-	WriteLine("change nothing");
+	WriteLine(dvc.Name() # " change nothing. Temp: " + dpTemp.Value() );
   }
 }
