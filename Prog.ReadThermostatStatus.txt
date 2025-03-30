@@ -35,7 +35,7 @@ foreach(chId, func.EnumUsedIDs()) {
 	) {
 	    WriteLine(dvc.Name() # " (" # dvc.HssType() # "): " # dp.Name() # ": " # dp.Value());
 		boostMode = true;
-		WriteLine("Boost mode aktive");
+		WriteLine("Boost mode active");
 	}
   }
 }
