@@ -9,9 +9,12 @@ string stderr;
 string stdout;
 string heating;
 
-string sysvName = "SysVar.ThermostatMaxSelTemp";
-var sysv = dom.GetObject(sysvName);
-var seltemp = sysv.Value();
+if(dom.GetObject("SysVar.BoilerHeatingDisabled").Value()) {
+  WriteLine("Do nothing as heating is disabled."); 
+  quit;
+}
+
+var seltemp = dom.GetObject("SysVar.ThermostatMaxSelTemp").Value();
 var data = "-d '{\"cmd\":\"hc1.seltemp\",\"data\":" # seltemp # "}'";
 !WriteLine("data: " # data);
 var cc=system.Exec("curl -fsS http://" # emsespip # "/api/thermostat -X POST " # contenttype # " " # authorization # " " # data, &stdout, &stderr);
