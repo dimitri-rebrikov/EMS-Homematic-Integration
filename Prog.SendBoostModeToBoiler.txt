@@ -9,19 +9,24 @@ string stderr;
 string stdout;
 string heating;
 
-string sysvName = "SysVar.ThermostatBoostMode";
-var sysv = dom.GetObject(sysvName);
-boolean boostOn = sysv.Value();
 string boost = "off";
-if(boostOn) {
-  boost = "on";
+
+if(!dom.GetObject("SysVar.BoilerHeatingDisabled").Value()) {
+  string sysvName = "SysVar.ThermostatBoostMode";
+  var sysv = dom.GetObject(sysvName);
+  boolean boostOn = sysv.Value();
+  if(boostOn) {
+    boost = "on";
+  }
 }
+
 var data = "-d '{\"cmd\":\"hc1.boost\",\"data\":\"" # boost # "\"}'";
 !WriteLine("data: " # data);
 var cc=system.Exec("curl -fsS http://" # emsespip # "/api/thermostat -X POST " # contenttype # " " # authorization # " " # data, &stdout, &stderr);
 !WriteLine("stdout: " # stdout);
 !WriteLine("stderr: " # stderr);
 !WriteLine("cc: " # cc);
+
 if( cc == 0) {
   WriteLine("Updated boiler boost to: " # boost); 
 } else {
