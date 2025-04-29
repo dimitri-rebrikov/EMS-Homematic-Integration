@@ -1,6 +1,7 @@
 string funcName = "ThermostatList";
 var func = dom.GetObject(funcName);
 
+real maxAcceptedTemp = 24.0;
 real maxTemp = 0.0;
 boolean boostMode = false;
 
@@ -20,6 +21,9 @@ foreach(chId, func.EnumUsedIDs()) {
 		&& (dp.Name().EndsWith(".SET_POINT_TEMPERATURE")))
 	) {
 		var curTemp = dp.Value();
+		if ( curTemp > maxAcceptedTemp ) {
+			curTemp = maxAcceptedTemp;
+		}
 		WriteLine(dvc.Name() # " (" # dvc.HssType() # "): " # dp.Name() # ": " # curTemp);
 		if( curTemp > maxTemp ) {
 			WriteLine("update maxTemp to: " # curTemp);
