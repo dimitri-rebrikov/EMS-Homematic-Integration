@@ -5,6 +5,9 @@ string sysvName = "SysVar.BoilerHeatingDisabled";
 var sysv = dom.GetObject(sysvName);
 WriteLine("Value for: " # sysvName # "=" # sysv.Value());
 
+real permanentOnTemp = 30.5;
+real winterModeTemp = 20.0;
+
 boolean heatingDisabled = sysv.Value();
 
 string chId; 
@@ -43,14 +46,15 @@ foreach(chId, func.EnumUsedIDs()) {
 		}
 	}
   }
-  if(heatingDisabled && (dpTemp.Value() < 30.5)){
+  if(heatingDisabled && (dpTemp.Value() < permanentOnTemp)){
 	WriteLine(dvc.Name() # " activate summer mode");
 	WriteLine("Set " # dpModeManu.Name() # " to " # dpModeManuValue);
     dpModeManu.State(dpModeManuValue);
-	dpTemp.State(30.5);
+	dpTemp.State(permanentOnTemp);
 	WriteLine(dvc.Name() # " summer mode activated");
-  } elseif((!heatingDisabled)  && (dpTemp.Value() >= 25)) {
+  } elseif((!heatingDisabled)  && (dpTemp.Value() >= permanentOnTemp)) {
     WriteLine(dvc.Name() # " activate winter mode");
+	dpTemp.State(winterModeTemp);
     WriteLine("Set " # dpModeAuto.Name() # " to " # dpModeAutoValue);
     dpModeAuto.State(dpModeAutoValue);
     WriteLine(dvc.Name() # " winter mode activated");
