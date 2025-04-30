@@ -1,0 +1,2 @@
+
+dom.GetObject("SysVar.BoilerHeatingDisabled").State(true)
