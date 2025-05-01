@@ -48,15 +48,21 @@ foreach(chId, func.EnumUsedIDs()) {
   }
   if(heatingDisabled && (dpTemp.Value() < permanentOnTemp)){
 	WriteLine(dvc.Name() # " activate summer mode");
-	WriteLine("Set " # dpModeManu.Name() # " to " # dpModeManuValue);
-    dpModeManu.State(dpModeManuValue);
+	if(dpModeManu.Value() != dpModeManuValue) {
+		WriteLine("Set " # dpModeManu.Name() # " to " # dpModeManuValue);
+		dpModeManu.State(dpModeManuValue);
+	}
+	WriteLine("Set " # dpTemp.Name() # " to " # permanentOnTemp);
 	dpTemp.State(permanentOnTemp);
 	WriteLine(dvc.Name() # " summer mode activated");
   } elseif((!heatingDisabled)  && (dpTemp.Value() >= permanentOnTemp)) {
     WriteLine(dvc.Name() # " activate winter mode");
+	if(dpModeAuto.Value() != dpModeAutoValue) {
+		WriteLine("Set " # dpModeAuto.Name() # " to " # dpModeAutoValue);
+		dpModeAuto.State(dpModeAutoValue);
+	}
+	WriteLine("Set " # dpTemp.Name() # " to " # winterModeTemp);
 	dpTemp.State(winterModeTemp);
-    WriteLine("Set " # dpModeAuto.Name() # " to " # dpModeAutoValue);
-    dpModeAuto.State(dpModeAutoValue);
     WriteLine(dvc.Name() # " winter mode activated");
   } else {
 	WriteLine(dvc.Name() # " change nothing. Temp: " + dpTemp.Value() );
