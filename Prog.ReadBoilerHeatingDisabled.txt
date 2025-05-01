@@ -19,6 +19,12 @@ if(stdout == "summer") {
 }
 string sysvName = "SysVar.BoilerHeatingDisabled";
 var sysv = dom.GetObject(sysvName);
-sysv.State(heatingDisabled);
 
-WriteLine("New value for: " # sysvName # "=" # sysv.Value());
+if(sysv.Value() != heatingDisabled) {
+  sysv.State(heatingDisabled);
+  WriteLine("New value for: " # sysvName # "=" # sysv.Value());
+  dom.GetObject("CUxD.CUX2801001:1.SYSLOG").State("Prog.ReadBoilerHeatingDisabled: New value for: " # sysvName # "=" # sysv.Value());
+} else {
+  WriteLine("Value for: " # sysvName # " unchanged: " # sysv.Value());
+  !dom.GetObject("CUxD.CUX2801001:1.SYSLOG").State("Prog.ReadBoilerHeatingDisabled: Value for: " # sysvName # " unchanged: " # sysv.Value());
+}
