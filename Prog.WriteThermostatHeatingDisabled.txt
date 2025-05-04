@@ -60,9 +60,12 @@ foreach(chId, func.EnumUsedIDs()) {
 	if(dpModeAuto.Value() != dpModeAutoValue) {
 		WriteLine("Set " # dpModeAuto.Name() # " to " # dpModeAutoValue);
 		dpModeAuto.State(dpModeAutoValue);
+	} else {
+		! workaround for the case if the mode already set to auto 
+		! but the temperature is still set to permanent on
+		WriteLine("Workaround: Set " # dpTemp.Name() # " to " # winterModeTemp);
+		dpTemp.State(winterModeTemp);
 	}
-	WriteLine("Set " # dpTemp.Name() # " to " # winterModeTemp);
-	dpTemp.State(winterModeTemp);
     WriteLine(dvc.Name() # " winter mode activated");
   } else {
 	WriteLine(dvc.Name() # " change nothing. Temp: " + dpTemp.Value() );
